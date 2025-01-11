@@ -390,8 +390,30 @@ function getSpiralMatrix(size) {
  *    [7, 8, 9]         [9, 6, 3]
  *  ]                 ]
  */
-function rotateMatrix(/* matrix */) {
-  throw new Error('Not implemented');
+function rotateMatrix(matrix) {
+  const n = matrix.length;
+  const result = matrix;
+
+  for (let i = 0; i < n; i += 1) {
+    for (let j = i + 1; j < n; j += 1) {
+      const temp = result[i][j];
+      result[i][j] = result[j][i];
+      result[j][i] = temp;
+    }
+  }
+
+  for (let i = 0; i < n; i += 1) {
+    let l = 0;
+    let r = n - 1;
+    while (l < r) {
+      const temp = result[i][l];
+      result[i][l] = result[i][r];
+      result[i][r] = temp;
+      l += 1;
+      r -= 1;
+    }
+  }
+  return result;
 }
 
 /**
@@ -408,8 +430,35 @@ function rotateMatrix(/* matrix */) {
  *  [2, 9, 5, 9]    => [2, 5, 9, 9]
  *  [-2, 9, 5, -3]  => [-3, -2, 5, 9]
  */
-function sortByAsc(/* arr */) {
-  throw new Error('Not implemented');
+function sortByAsc(arr1) {
+  const arr = arr1;
+  function quickSort(start, end) {
+    if (start >= end) return;
+
+    const pivot = arr[start];
+    let left = start + 1;
+    let right = end;
+
+    while (left <= right) {
+      if (arr[left] > pivot && arr[right] < pivot) {
+        const temp = arr[left];
+        arr[left] = arr[right];
+        arr[right] = temp;
+      }
+      if (arr[left] <= pivot) left += 1;
+      if (arr[right] >= pivot) right -= 1;
+    }
+
+    const temp = arr[start];
+    arr[start] = arr[right];
+    arr[right] = temp;
+
+    quickSort(start, right - 1);
+    quickSort(right + 1, end);
+  }
+
+  quickSort(0, arr.length - 1);
+  return arr;
 }
 
 /**
@@ -423,14 +472,60 @@ function sortByAsc(/* arr */) {
  *
  * @example:
  *  '012345', 1 => '024135'
+ * 01234567 1
+ * 02345671 1
+ * 02456713 3
+ * 02467135 4
+ * 0246891357 5
+ * 0246813579
  *  'qwerty', 1 => 'qetwry'
  *  '012345', 2 => '024135' => '043215'
  *  'qwerty', 2 => 'qetwry' => 'qtrewy'
  *  '012345', 3 => '024135' => '043215' => '031425'
  *  'qwerty', 3 => 'qetwry' => 'qtrewy' => 'qrwtey'
+ * qwerty, 4
  */
-function shuffleChar(/* str, iterations */) {
-  throw new Error('Not implemented');
+function shuffleChar(str, iterations) {
+  const ans = str;
+  let currentStr = ans;
+
+  const shuffleOnce = (s) => {
+    let result = s;
+    let j = 1;
+    while (j < Math.floor(s.length / 2) + 1) {
+      const before = result.substring(0, j);
+      const after = result.substring(j + 1);
+      const char = result.charAt(j);
+      result = before + after + char;
+      j += 1;
+    }
+    return result;
+  };
+
+  let cycleLength = 0;
+  let foundCycle = false;
+  for (let i = 0; i < iterations; i += 1) {
+    currentStr = shuffleOnce(currentStr);
+    cycleLength += 1;
+
+    if (currentStr === ans && iterations !== i - 1) {
+      foundCycle = true;
+      break;
+    }
+  }
+
+  let reducedIterations = iterations;
+  if (foundCycle) {
+    reducedIterations = iterations;
+    reducedIterations %= cycleLength;
+  }
+
+  let finalResult = ans;
+  for (let i = 0; i < reducedIterations; i += 1) {
+    finalResult = shuffleOnce(finalResult);
+  }
+
+  return finalResult;
 }
 
 /**
@@ -440,6 +535,7 @@ function shuffleChar(/* str, iterations */) {
  *
  * @example:
  * 12345    => 12354
+ * 5 4 3 2 1
  * 123450   => 123504
  * 12344    => 12434
  * 123440   => 124034
@@ -450,8 +546,52 @@ function shuffleChar(/* str, iterations */) {
  * @param {number} number The source number
  * @returns {number} The nearest larger number, or original number if none exists.
  */
-function getNearestBigger(/* number */) {
-  throw new Error('Not implemented');
+function getNearestBigger(number) {
+  const arr = [];
+  let temp = number;
+
+  while (temp > 0) {
+    arr.push(temp % 10);
+    temp = Math.floor(temp / 10);
+  }
+  arr.reverse();
+
+  let i = arr.length - 2;
+  while (i >= 0 && arr[i] >= arr[i + 1]) {
+    i -= 1;
+  }
+
+  if (i < 0) {
+    return number;
+  }
+
+  let minLargerIndex = i + 1;
+  for (let j = i + 1; j < arr.length; j += 1) {
+    if (arr[j] > arr[i] && arr[j] < arr[minLargerIndex]) {
+      minLargerIndex = j;
+    }
+  }
+
+  const tempSwap = arr[i];
+  arr[i] = arr[minLargerIndex];
+  arr[minLargerIndex] = tempSwap;
+
+  for (let k = i + 1; k < arr.length - 1; k += 1) {
+    for (let l = k + 1; l < arr.length; l += 1) {
+      if (arr[k] > arr[l]) {
+        const tempSort = arr[k];
+        arr[k] = arr[l];
+        arr[l] = tempSort;
+      }
+    }
+  }
+
+  let result = 0;
+  for (let m = 0; m < arr.length; m += 1) {
+    result = result * 10 + arr[m];
+  }
+
+  return result;
 }
 
 module.exports = {
